@@ -1,0 +1,16 @@
+{
+  "name": "Quantum Multi-Framework Studio",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "ms-python.vscode-pylance"]
+    }
+  },
+  "updateContentCommand": "pip3 install --user -r backend/requirements.txt",
+  "postAttachCommand": "echo 'To start the app: cd backend && uvicorn main:app --reload --port 8000'",
+  "forwardPorts": [8000, 3000],
+  "portsAttributes": {
+    "8000": { "label": "API Backend", "onAutoForward": "silent" },
+    "3000": { "label": "Web Interface", "onAutoForward": "openPreview" }
+  }
+}
