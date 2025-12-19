@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quantum Multi-Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #FFFBEA; color: #333333; font-family: sans-serif; }
+        .editor-bg { background-color: #1e1e1e; color: #dcdcdc; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-black mb-2 text-[#004E98]">⚛️ Quantum Studio</h1>
+        <p class="mb-8 opacity-70">Unified Interface for Qiskit, Cirq, and OpenQASM</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100">
+                <label class="block font-bold text-xs uppercase tracking-widest mb-2">Select Framework</label>
+                <select id="framework" class="w-full p-3 rounded-lg border mb-6 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-400">
+                    <option>OpenQASM 2.0</option>
+                    <option>Qiskit (Python)</option>
+                    <option>Cirq</option>
+                    <option disabled>CUDA-Q (Coming Soon)</option>
+                    <option disabled>Qulacs (Coming Soon)</option>
+                </select>
+
+                <label class="block font-bold text-xs uppercase tracking-widest mb-2">Code Editor</label>
+                <textarea id="code" class="w-full h-80 p-4 font-mono text-sm editor-bg rounded-lg shadow-inner" placeholder="Enter code here..."></textarea>
+                
+                <button onclick="visualize()" class="w-full mt-6 bg-[#004E98] text-white font-bold py-4 rounded-xl hover:bg-blue-800 transition transform active:scale-95">
+                    Generate Visualization
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center justify-center bg-white rounded-2xl border-4 border-dashed border-orange-50 p-6 min-h-[400px]">
+                <div id="loader" class="hidden animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <img id="output" src="" class="max-w-full shadow-lg rounded-lg">
+                <p id="msg" class="text-gray-400">Circuit diagram will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function visualize() {
+            const btn = document.querySelector('button');
+            const img = document.getElementById('output');
+            const msg = document.getElementById('msg');
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
+            img.src = "";
+            msg.innerText = "Processing Quantum Logic...";
+
+            try {
+                const response = await fetch('http://localhost:8000/visualize', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        code: document.getElementById('code').value,
+                        framework: document.getElementById('framework').value
+                    })
+                });
+                const data = await response.json();
+                if(data.image) {
+                    img.src = data.image;
+                    msg.innerText = "";
+                } else {
+                    alert("Error: " + data.detail);
+                }
+            } catch (e) {
+                alert("Backend not reached. Ensure main.py is running on port 8000.");
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
